@@ -1,5 +1,6 @@
 """Contains all functions for placing orders for stocks, options, and crypto."""
 from uuid import uuid4
+import time
 
 from robin_stocks.robinhood.crypto import *
 from robin_stocks.robinhood.helper import *
@@ -1497,7 +1498,7 @@ def order_crypto(symbol, side, quantityOrPrice, amountIn="quantity", limitPrice=
         'account_id': load_crypto_profile(info="id"),
         'currency_pair_id': crypto_id,
         'price': price,
-        'quantity': quantity,
+        'quantity': int(quantity),
         'ref_id': str(uuid4()),
         'side': side,
         'time_in_force': timeInForce,
@@ -1507,12 +1508,13 @@ def order_crypto(symbol, side, quantityOrPrice, amountIn="quantity", limitPrice=
     url = order_crypto_url()
 
     # This is safe because 'ref_id' guards us from duplicate orders
-    attempts = 3
+    attempts = 10
     while attempts > 0:
         data = request_post(url, payload, json=True, jsonify_data=jsonify)
         if data is not None:
             break
 
+        time.sleep(6)
         attempts -= 1
 
     return(data)
