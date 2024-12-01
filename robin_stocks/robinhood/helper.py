@@ -350,7 +350,11 @@ def request_post(url, payload=None, timeout=16, json=False, jsonify_data=True):
         else:
             res = SESSION.post(url, data=payload, timeout=timeout)
         if res.status_code not in [200, 201, 202, 204, 301, 302, 303, 304, 307, 400, 401, 402, 403]:
-            raise Exception("Received "+ str(res.status_code))
+            try:
+                additional_log = str(res.json())
+            except:
+                additional_log = ""
+            raise Exception(" ".join(["Received", str(res.status_code), additional_log]))
         data = res.json()
     except Exception as message:
         print("Error in request_post: {0}".format(message), file=get_output())
